@@ -13,6 +13,8 @@ namespace mgnr::offline_render {
 inline void render(const std::string& midi,
                    const char* sf,
                    int sampleRate,
+                   int section,
+                   int sectionShift,
                    const std::function<void(const float*, mgnr::offline&)>& callback) {
     //::__android_log_print(ANDROID_LOG_INFO, "offline_render","render");
     mgnr::offline renderer(sf, sampleRate);
@@ -20,6 +22,9 @@ inline void render(const std::string& midi,
     float buf[64];
     //::__android_log_print(ANDROID_LOG_INFO, "offline_render","render start...");
     renderer.updateTimeMax();
+    renderer.sectionShift = sectionShift;
+    renderer.setSection(section);
+    renderer.markStrong();
     while (renderer.renderStep(buf)) {
         callback(buf, renderer);
     }
@@ -29,8 +34,10 @@ inline void getFreq(const std::string& midi,
                     const char* sf,
                     int sampleRate,
                     int fftSize,
-                    int skip,      //处理时跳过帧
-                    int blockNum,  //每一次有多少个block，剩下的补0
+                    int section,       //节拍
+                    int sectionShift,  //节拍偏移
+                    int skip,          //处理时跳过帧
+                    int blockNum,      //每一次有多少个block，剩下的补0
                     const std::function<void(const sinrivUtils::cmplx*,
                                              mgnr::offline&)>& callback) {
     if (blockNum <= 0) {
@@ -69,7 +76,7 @@ inline void getFreq(const std::string& midi,
 
         //渲染
         int frameId = 0;
-        render(midi, sf, sampleRate, [&](const float* buffer, mgnr::offline& renderer) {
+        render(midi, sf, sampleRate, section, sectionShift, [&](const float* buffer, mgnr::offline& renderer) {
             //填充数组
             auto dataBuff_it = dataBuff.begin();
             if (dataBuff_it != dataBuff.end()) {
@@ -125,9 +132,11 @@ inline void getMidiMap(const std::string& midi,
                        const char* sf,
                        int sampleRate,
                        int fftSize,
-                       int skip,       //处理时跳过帧
-                       int blockNum,   //每一次有多少个block，剩下的补0
-                       float minFreq,  //频谱被标记的阈值
+                       int section,       //节拍
+                       int sectionShift,  //节拍偏移
+                       int skip,          //处理时跳过帧
+                       int blockNum,      //每一次有多少个block，剩下的补0
+                       float minFreq,     //频谱被标记的阈值
                        const std::function<void(const float*, const int*, mgnr::offline&)>& callback) {
     //::__android_log_print(ANDROID_LOG_INFO, "offline_render","getMidiMap");
     float midiBuffer[512];
@@ -156,7 +165,7 @@ inline void getMidiMap(const std::string& midi,
         midiMapper_begin[idx] = pos_begin;
         midiMapper_end[idx] = pos_end;
     }
-    getFreq(midi, sf, sampleRate, fftSize, skip, blockNum,
+    getFreq(midi, sf, sampleRate, fftSize, section, sectionShift, skip, blockNum,
             [&](const sinrivUtils::cmplx* buffer, mgnr::offline& renderer) {
                 //::__android_log_print(ANDROID_LOG_INFO, "offline_render","render freq map");
                 bzero(midiBuffer, sizeof(midiBuffer));
@@ -179,11 +188,15 @@ inline void getMidiMap(const std::string& midi,
                 }
                 //计算实际的频谱
                 for (auto& it : renderer.playing) {
+                    int mark = 1;
+                    if (it->isStrong) {
+                        mark = 2;
+                    }
                     int begin = it->tone * 4;
                     int end = (it->tone + 1) * 4;
                     for (int i = begin; i < end; ++i) {
                         if (i >= 0 && i < 512 && midiBuffer[i] > minFreq) {
-                            tag[i] = 1;  //标记
+                            tag[i] = mark;  //标记
                         }
                     }
                 }
@@ -195,9 +208,11 @@ inline void getMidiMap(const std::string& midi,
                        const char* sf,
                        int sampleRate,
                        int fftSize,
-                       int skip,       //处理时跳过帧
-                       int blockNum,   //每一次有多少个block，剩下的补0
-                       float minFreq,  //频谱被标记的阈值
+                       int section,       //节拍
+                       int sectionShift,  //节拍偏移
+                       int skip,          //处理时跳过帧
+                       int blockNum,      //每一次有多少个block，剩下的补0
+                       float minFreq,     //频谱被标记的阈值
                        const char* outPath) {
     auto fp = fopen(outPath, "w");
     if (fp) {
@@ -205,9 +220,12 @@ inline void getMidiMap(const std::string& midi,
         printf("音源：%s\n", sf);
         printf("输出：%s\n", outPath);
         printf("采样率：%d\n", sampleRate);
+        printf("节拍：%d\n", section);
+        printf("节拍偏移：%d\n", sectionShift);
         printf("开始执行渲染\n");
         int count = 0;
-        getMidiMap(midi, sf, sampleRate, fftSize, skip, blockNum, minFreq,
+        getMidiMap(midi, sf, sampleRate,
+                   fftSize, section, sectionShift, skip, blockNum, minFreq,
                    [&](const float* freq, const int* tag, mgnr::offline& renderer) {
                        fprintf(fp, "%f", renderer.lookAtX / renderer.TPQ);
                        for (int i = 0; i < 512; ++i) {

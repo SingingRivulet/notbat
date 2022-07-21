@@ -167,6 +167,8 @@ namespace mgnr{
             inline void loadInstrument(const stringPool::stringPtr & n){
                 loadInstrument(getInstrumentId(n));
             }
+
+            void markStrong();
             
         private:
             float noteAreaHeight;

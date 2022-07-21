@@ -28,7 +28,7 @@ if __name__ == '__main__':
     index = 0
     model_id = 0
     print("开始训练")
-    for arr in loader.loadTable_tensor("./render-build/out.txt"):
+    for arr in loader.loadTable_tensor("datas/test.mid.txt"):
         m.zero_grad()
         # 准备数据
         data_in = arr[0].to(device=device)

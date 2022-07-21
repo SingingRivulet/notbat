@@ -39,6 +39,7 @@ namespace mgnr{
             int id;
             int startId;
             int endId;
+            bool isStrong = false;
 
             stringPool::stringPtr info;
             

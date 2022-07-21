@@ -48,7 +48,8 @@ namespace mgnr{
             virtual void rebuildNoteLen()=0;
 
             float sectionLen;//小节线
-            int section;
+            int section = 4;//每小节多少拍
+            int sectionShift = 0;//小节线往前移动多少拍
 
             inline void setSection(int s){
                 section = s;
