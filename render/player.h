@@ -15,7 +15,7 @@ namespace mgnr{
             void noteOff(note *);
             
             double tempo;
-            virtual int getTime();
+            virtual long getTime();
             bool playingStatus;
             std::set<note*> playing;
             
@@ -25,7 +25,7 @@ namespace mgnr{
             
         private:
             std::set<note*> toPlay;
-            int lastTime;
+            long lastTime;
             long playTimes;
             inline float secondsPerTick(){//1秒=多少tick
                 return 60.0 / (tempo * TPQ);

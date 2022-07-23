@@ -28,11 +28,12 @@ if __name__ == '__main__':
     index = 0
     model_id = 0
     print("开始训练")
-    for arr in loader.loadTable_tensor("datas/test.mid.txt"):
+    def train(input, output):
+        global index,model_id
         m.zero_grad()
         # 准备数据
-        data_in = arr[0].to(device=device)
-        targets = arr[1].to(device=device)
+        data_in = input.to(device=device)
+        targets = output.to(device=device)
         #print(data_in, targets)
         # 前向传播
         tag_scores = m(data_in)
@@ -49,3 +50,5 @@ if __name__ == '__main__':
         if index % 200 == 0:
             torch.save(m.state_dict(), './models/'+str(model_id)+'.pkl')
             model_id += 1
+    loader.loadMidi_tensor("./datas/midi/节拍4-0/58819",
+                    "datas/sndfnt.sf2", train)

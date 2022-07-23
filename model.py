@@ -181,7 +181,7 @@ class PSPUpsample(nn.Module):
 
 
 class PSPNet(nn.Module):
-    def __init__(self, n_classes=3, sizes=(1, 2, 3, 6), psp_size=2048, deep_features_size=1024):
+    def __init__(self, n_classes=3, sizes=(1, 2, 3, 6), psp_size=2048):
         super().__init__()
         self.feats = ResNet(Bottleneck, [3, 4, 6, 3])
         self.psp = PSPModule(psp_size, 1024, sizes)

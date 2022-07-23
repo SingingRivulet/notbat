@@ -75,8 +75,8 @@ namespace mgnr {
         tsf_channel_set_presetnumber(soundfont, c, ins);
     }
 
-    int offline::getTime() {
-        return (int) nowTime;
+    long offline::getTime() {
+        return (long) nowTime;
     }
 
     offline::offline(const char *sf, int sampleRate) {
@@ -91,7 +91,7 @@ namespace mgnr {
     }
 
     bool offline::renderStep(float *buffer) {
-        nowTime = nowTime_point * 1000 / sampleRate;
+        nowTime = nowTime_point * 1000. / sampleRate;
         //::__android_log_print(ANDROID_LOG_INFO,
         //                      "offline_render",
         //                      "nowTime:%f nowTime_point:%d", nowTime, nowTime_point);

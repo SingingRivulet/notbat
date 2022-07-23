@@ -74,7 +74,7 @@ namespace mgnr {
 
         void onSelectedChange(int len) override;
 
-        int getTime() override;
+        long getTime() override;
 
         bool renderStep(float *buffer);
     };
