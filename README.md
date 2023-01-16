@@ -8,12 +8,12 @@
 怎么使用，不知道  
 
 调用方法  
-···
+```
     m = model.PSPNet(3).to(device=device)  # 模型路径
     weights = torch.load('./models/61.pkl', map_location=torch.device(device))
     m.load_state_dict(weights)
     输出midi = m(频谱数据)
-···
+```
   
 模型下载：  
 链接: https://pan.baidu.com/s/1vednuw9hiagOzXPaWmOEvA  密码: 869q  
