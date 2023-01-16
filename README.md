@@ -9,8 +9,8 @@
 
 调用方法  
 ```
-    m = model.PSPNet(3).to(device=device)  # 模型路径
-    weights = torch.load('./models/61.pkl', map_location=torch.device(device))
+    m = model.PSPNet(3).to(device=device)  # 创建模型
+    weights = torch.load('./models/61.pkl', map_location=torch.device(device))# 加载模型路径
     m.load_state_dict(weights)
     输出midi = m(频谱数据)
 ```
